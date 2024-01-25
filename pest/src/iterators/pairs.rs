@@ -7,8 +7,10 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
+// Note that Rc has been replaced with RefCounted in this Infino fork
+
+use crate::RefCounted;
 use alloc::format;
-use alloc::rc::Rc;
 use alloc::string::String;
 use alloc::vec::Vec;
 use core::fmt;
@@ -34,24 +36,24 @@ use crate::RuleType;
 /// [`Pair::into_inner`]: struct.Pair.html#method.into_inner
 #[derive(Clone)]
 pub struct Pairs<'i, R> {
-    queue: Rc<Vec<QueueableToken<'i, R>>>,
+    queue: RefCounted<Vec<QueueableToken<'i, R>>>,
     input: &'i str,
     start: usize,
     end: usize,
     pairs_count: usize,
-    line_index: Rc<LineIndex>,
+    line_index: RefCounted<LineIndex>,
 }
 
 pub fn new<'i, R: RuleType>(
-    queue: Rc<Vec<QueueableToken<'i, R>>>,
+    queue: RefCounted<Vec<QueueableToken<'i, R>>>,
     input: &'i str,
-    line_index: Option<Rc<LineIndex>>,
+    line_index: Option<RefCounted<LineIndex>>,
     start: usize,
     end: usize,
 ) -> Pairs<'i, R> {
     let line_index = match line_index {
         Some(line_index) => line_index,
-        None => Rc::new(LineIndex::new(input)),
+        None => RefCounted::new(LineIndex::new(input)),
     };
 
     let mut pairs_count = 0;
@@ -349,9 +351,9 @@ impl<'i, R: RuleType> Pairs<'i, R> {
         if self.start < self.end {
             Some(unsafe {
                 pair::new(
-                    Rc::clone(&self.queue),
+                    RefCounted::clone(&self.queue),
                     self.input,
-                    Rc::clone(&self.line_index),
+                    RefCounted::clone(&self.line_index),
                     self.start,
                 )
             })
@@ -429,9 +431,9 @@ impl<'i, R: RuleType> DoubleEndedIterator for Pairs<'i, R> {
 
         let pair = unsafe {
             pair::new(
-                Rc::clone(&self.queue),
+                RefCounted::clone(&self.queue),
                 self.input,
-                Rc::clone(&self.line_index),
+                RefCounted::clone(&self.line_index),
                 self.end,
             )
         };
@@ -461,7 +463,7 @@ impl<'i, R: RuleType> fmt::Display for Pairs<'i, R> {
 
 impl<'i, R: PartialEq> PartialEq for Pairs<'i, R> {
     fn eq(&self, other: &Pairs<'i, R>) -> bool {
-        Rc::ptr_eq(&self.queue, &other.queue)
+        RefCounted::ptr_eq(&self.queue, &other.queue)
             && ptr::eq(self.input, other.input)
             && self.start == other.start
             && self.end == other.end

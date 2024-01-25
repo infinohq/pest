@@ -6,6 +6,9 @@
 // license <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
+
+// Note that Rc has been replaced with RefCounted in this Infino fork
+
 #![no_std]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/pest-parser/pest/master/pest-logo.svg",
@@ -333,6 +336,8 @@
 extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
+
+pub(crate) type RefCounted<T> = std::sync::Arc<T>;
 
 pub use crate::parser::Parser;
 pub use crate::parser_state::{

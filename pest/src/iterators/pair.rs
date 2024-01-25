@@ -7,8 +7,10 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
+// Note that Rc has been replaced with RefCounted in this Infino fork
+
+use crate::RefCounted;
 use alloc::format;
-use alloc::rc::Rc;
 #[cfg(feature = "pretty-print")]
 use alloc::string::String;
 use alloc::vec::Vec;
@@ -41,20 +43,20 @@ pub struct Pair<'i, R> {
     /// # Safety
     ///
     /// All `QueueableToken`s' `input_pos` must be valid character boundary indices into `input`.
-    queue: Rc<Vec<QueueableToken<'i, R>>>,
+    queue: RefCounted<Vec<QueueableToken<'i, R>>>,
     input: &'i str,
     /// Token index into `queue`.
     start: usize,
-    line_index: Rc<LineIndex>,
+    line_index: RefCounted<LineIndex>,
 }
 
 /// # Safety
 ///
 /// All `QueueableToken`s' `input_pos` must be valid character boundary indices into `input`.
 pub unsafe fn new<'i, R: RuleType>(
-    queue: Rc<Vec<QueueableToken<'i, R>>>,
+    queue: RefCounted<Vec<QueueableToken<'i, R>>>,
     input: &'i str,
-    line_index: Rc<LineIndex>,
+    line_index: RefCounted<LineIndex>,
     start: usize,
 ) -> Pair<'i, R> {
     Pair {
@@ -372,7 +374,7 @@ impl<'i, R: RuleType> fmt::Display for Pair<'i, R> {
 
 impl<'i, R: PartialEq> PartialEq for Pair<'i, R> {
     fn eq(&self, other: &Pair<'i, R>) -> bool {
-        Rc::ptr_eq(&self.queue, &other.queue)
+        RefCounted::ptr_eq(&self.queue, &other.queue)
             && ptr::eq(self.input, other.input)
             && self.start == other.start
     }
