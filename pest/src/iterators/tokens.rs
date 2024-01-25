@@ -7,7 +7,7 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-use alloc::rc::Rc;
+use crate::RefCounted;
 use alloc::vec::Vec;
 use core::fmt;
 use core::str;
@@ -27,7 +27,7 @@ pub struct Tokens<'i, R> {
     /// # Safety:
     ///
     /// All `QueueableToken`s' `input_pos` must be valid character boundary indices into `input`.
-    queue: Rc<Vec<QueueableToken<'i, R>>>,
+    queue: RefCounted<Vec<QueueableToken<'i, R>>>,
     input: &'i str,
     start: usize,
     end: usize,
@@ -35,7 +35,7 @@ pub struct Tokens<'i, R> {
 
 // TODO(safety): QueueableTokens must be valid indices into input.
 pub fn new<'i, R: RuleType>(
-    queue: Rc<Vec<QueueableToken<'i, R>>>,
+    queue: RefCounted<Vec<QueueableToken<'i, R>>>,
     input: &'i str,
     start: usize,
     end: usize,

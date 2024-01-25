@@ -7,7 +7,7 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-use alloc::rc::Rc;
+use crate::RefCounted;
 use alloc::vec::Vec;
 use core::fmt;
 
@@ -25,18 +25,18 @@ pub struct FlatPairs<'i, R> {
     /// # Safety
     ///
     /// All `QueueableToken`s' `input_pos` must be valid character boundary indices into `input`.
-    queue: Rc<Vec<QueueableToken<'i, R>>>,
+    queue: RefCounted<Vec<QueueableToken<'i, R>>>,
     input: &'i str,
     start: usize,
     end: usize,
-    line_index: Rc<LineIndex>,
+    line_index: RefCounted<LineIndex>,
 }
 
 /// # Safety
 ///
 /// All `QueueableToken`s' `input_pos` must be valid character boundary indices into `input`.
 pub unsafe fn new<'i, R: RuleType>(
-    queue: Rc<Vec<QueueableToken<'i, R>>>,
+    queue: RefCounted<Vec<QueueableToken<'i, R>>>,
     input: &'i str,
     start: usize,
     end: usize,
@@ -44,7 +44,7 @@ pub unsafe fn new<'i, R: RuleType>(
     FlatPairs {
         queue,
         input,
-        line_index: Rc::new(LineIndex::new(input)),
+        line_index: RefCounted::new(LineIndex::new(input)),
         start,
         end,
     }
@@ -119,9 +119,9 @@ impl<'i, R: RuleType> Iterator for FlatPairs<'i, R> {
 
         let pair = unsafe {
             pair::new(
-                Rc::clone(&self.queue),
+                RefCounted::clone(&self.queue),
                 self.input,
-                Rc::clone(&self.line_index),
+                RefCounted::clone(&self.line_index),
                 self.start,
             )
         };
@@ -146,9 +146,9 @@ impl<'i, R: RuleType> DoubleEndedIterator for FlatPairs<'i, R> {
 
         let pair = unsafe {
             pair::new(
-                Rc::clone(&self.queue),
+                RefCounted::clone(&self.queue),
                 self.input,
-                Rc::clone(&self.line_index),
+                RefCounted::clone(&self.line_index),
                 self.end,
             )
         };
@@ -168,9 +168,9 @@ impl<'i, R: RuleType> fmt::Debug for FlatPairs<'i, R> {
 impl<'i, R: Clone> Clone for FlatPairs<'i, R> {
     fn clone(&self) -> FlatPairs<'i, R> {
         FlatPairs {
-            queue: Rc::clone(&self.queue),
+            queue: RefCounted::clone(&self.queue),
             input: self.input,
-            line_index: Rc::clone(&self.line_index),
+            line_index: RefCounted::clone(&self.line_index),
             start: self.start,
             end: self.end,
         }

@@ -10,9 +10,9 @@
 //! The core functionality of parsing grammar.
 //! State of parser during the process of rules handling.
 
+use super::RefCounted;
 use alloc::borrow::ToOwned;
 use alloc::boxed::Box;
-use alloc::rc::Rc;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::num::NonZeroUsize;
@@ -179,7 +179,13 @@ where
     match f(state) {
         Ok(state) => {
             let len = state.queue.len();
-            Ok(pairs::new(Rc::new(state.queue), input, None, 0, len))
+            Ok(pairs::new(
+                RefCounted::new(state.queue),
+                input,
+                None,
+                0,
+                len,
+            ))
         }
         Err(mut state) => {
             let variant = if state.reached_call_limit() {

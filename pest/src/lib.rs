@@ -334,6 +334,8 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
+pub(crate) type RefCounted<T> = std::sync::Arc<T>;
+
 pub use crate::parser::Parser;
 pub use crate::parser_state::{
     set_call_limit, state, Atomicity, Lookahead, MatchDir, ParseResult, ParserState,
