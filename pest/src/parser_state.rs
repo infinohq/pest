@@ -10,6 +10,8 @@
 //! The core functionality of parsing grammar.
 //! State of parser during the process of rules handling.
 
+// Note that Rc has been replaced with RefCounted in this Infino fork
+
 use super::RefCounted;
 use alloc::borrow::ToOwned;
 use alloc::boxed::Box;
